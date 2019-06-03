@@ -8,19 +8,36 @@ import { Row, Col, Alert } from 'reactstrap';
 
 import { IRootState } from 'app/shared/reducers';
 import { getSession } from 'app/shared/reducers/authentication';
-import { clearCourses, getCourses } from 'app/shared/reducers/course';
+import { clearCourses, getCourses, addACourse, updateACourse, deleteACourse } from 'app/shared/reducers/course';
 
 export interface IHomeProp extends StateProps, DispatchProps {}
 
 export class Home extends React.Component<IHomeProp> {
+  // constructor(props) {
+  //   super();
+  //   this.state = {
+  //     showHeader: false
+  //   }
+  // }
   componentDidMount() {
     this.props.getSession();
   }
 
   getAllCourses = () => {
     this.props.getCourses();
+    //this.state.showHeader= true;
   };
-
+  addCourse = () => {
+    this.props.addACourse();
+  };
+  updateCourse = () => {
+    this.props.updateACourse();
+  };
+  deleteCourse = (e, courseName) => {
+    e.preventDefault();
+    console.log('delete course ' + courseName);
+    this.props.deleteACourse(courseName);
+  };
   clearAllCourses = () => {
     this.props.clearCourses();
   };
@@ -30,7 +47,7 @@ export class Home extends React.Component<IHomeProp> {
     console.log(showCourse);
     return (
       <Row>
-        <Col md="9">
+        <Col md="12">
           <h2>Welcome, 九章全栈ReactSpring项目!</h2>
           <p className="lead">This is your homepage</p>
           {account && account.login ? (
@@ -42,17 +59,40 @@ export class Home extends React.Component<IHomeProp> {
               <button onClick={this.clearAllCourses} className="btn btn-primary">
                 清除
               </button>
-              {courses &&
-                courses.map(course => (
-                  <div className="courseOutterTable">
-                    <div className="courseInnerTable">{course.courseName}</div>
-                    <div>{course.courseLocation}</div>
-                    <div>{course.courseContent}</div>
-                    <div>{course.teacherName}</div>
-                    <button>注册课程</button>
-                    <button>删除课程</button>
-                  </div>
-                ))}
+              <table className="table table-striped table-dark" style={{ margin: '10px 0' }}>
+                {/* {courses ?
+                  <thead>
+                    <tr>
+                      <th scope="col">Course Name</th>
+                      <th scope="col">Course Location</th>
+                      <th scope="col">Course Content</th>
+                      <th scope="col">Teacher Name</th>
+                      <th scope="col">Update Course</th>
+                      <th scope="col">Delete Course</th>
+                    </tr>
+                  </thead> : null } */}
+                <tbody>
+                  {courses &&
+                    courses.map((course, key) => (
+                      <tr>
+                        <td>{course.courseName}</td>
+                        <td>{course.courseLocation}</td>
+                        <td>{course.courseContent}</td>
+                        <td>{course.teacherName}</td>
+                        <td>
+                          <button className="btn btn-primary" onClick={this.updateCourse}>
+                            Update
+                          </button>
+                        </td>
+                        <td>
+                          <button className="btn btn-danger" onClick={e => this.deleteCourse(e, course.courseName)}>
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
             </div>
           ) : (
             <div>
@@ -75,6 +115,72 @@ export class Home extends React.Component<IHomeProp> {
               </Alert>
             </div>
           )}
+          <hr />
+          <div>
+            <p className="lead">Add a New Course</p>
+            <form>
+              <div className="form-group row">
+                <label className="col-sm-2 col-form-label">Course Name</label>
+                <div className="col-sm-10">
+                  <input type="text" className="form-control" placeholder="Course Name" />
+                </div>
+              </div>
+              <div className="form-group row">
+                <label className="col-sm-2 col-form-label">Course Location</label>
+                <div className="col-sm-10">
+                  <input type="text" className="form-control" placeholder="Course Location" />
+                </div>
+              </div>
+              <div className="form-group row">
+                <label className="col-sm-2 col-form-label">Course Content</label>
+                <div className="col-sm-10">
+                  <input type="text" className="form-control" placeholder="Course Content" />
+                </div>
+              </div>
+              <div className="form-group row">
+                <label className="col-sm-2 col-form-label">Teacher Name</label>
+                <div className="col-sm-10">
+                  <input type="text" className="form-control" placeholder="Teacher Name" />
+                </div>
+              </div>
+              <button type="submit" className="btn btn-primary">
+                Add New Course
+              </button>
+            </form>
+          </div>
+          <hr />
+          <div>
+            <p className="lead">Update Course</p>
+            <form>
+              <div className="form-group row">
+                <label className="col-sm-2 col-form-label">Course Name</label>
+                <div className="col-sm-10">
+                  <input type="text" className="form-control" placeholder="Course Name" />
+                </div>
+              </div>
+              <div className="form-group row">
+                <label className="col-sm-2 col-form-label">Course Location</label>
+                <div className="col-sm-10">
+                  <input type="text" className="form-control" placeholder="Course Location" />
+                </div>
+              </div>
+              <div className="form-group row">
+                <label className="col-sm-2 col-form-label">Course Content</label>
+                <div className="col-sm-10">
+                  <input type="text" className="form-control" placeholder="Course Content" />
+                </div>
+              </div>
+              <div className="form-group row">
+                <label className="col-sm-2 col-form-label">Teacher Name</label>
+                <div className="col-sm-10">
+                  <input type="text" className="form-control" placeholder="Teacher Name" />
+                </div>
+              </div>
+              <button type="submit" className="btn btn-primary">
+                Update Course
+              </button>
+            </form>
+          </div>
         </Col>
       </Row>
     );
@@ -88,7 +194,7 @@ const mapStateToProps = storeState => ({
   showCourse: storeState.course.showCourse
 });
 
-const mapDispatchToProps = { getSession, getCourses, clearCourses };
+const mapDispatchToProps = { getSession, getCourses, addACourse, updateACourse, deleteACourse, clearCourses };
 
 type StateProps = ReturnType<typeof mapStateToProps>;
 type DispatchProps = typeof mapDispatchToProps;
